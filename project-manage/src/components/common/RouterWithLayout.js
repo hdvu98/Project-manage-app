@@ -8,7 +8,6 @@ const RouteLayout = (props) => {
     <Route
       {...rest}
       render={(matchProps) => {
-        console.log(matchProps);
         return (
           <Layout activeTab={activeTab}>
             <Component {...matchProps} />
