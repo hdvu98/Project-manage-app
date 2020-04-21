@@ -1,5 +1,3 @@
-import React from "react";
-const Project = (props) => {
-  return <div>project</div>;
-};
-export { Project };
+import ViewDetail from "./ViewDetail";
+import ProjectScreen from "./ProjectScreen";
+export { ViewDetail, ProjectScreen };

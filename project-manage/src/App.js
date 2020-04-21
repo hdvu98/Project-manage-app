@@ -3,7 +3,7 @@ import { MuiThemeProvider } from "@material-ui/core";
 import { BrowserRouter, Switch } from "react-router-dom";
 import { RouterWithLayout, PageLayout } from "./components/common/";
 import { Member } from "./components/members/";
-import { Project } from "./components/projects/";
+import { ViewDetail, ProjectScreen } from "./components/projects/";
 import { theme } from "./theme/";
 
 function App() {
@@ -28,14 +28,15 @@ function App() {
             ></RouterWithLayout>
             <RouterWithLayout
               path="/project"
+              exact
               layout={PageLayout}
-              component={Project}
+              component={ProjectScreen}
               activeTab="project"
             ></RouterWithLayout>
             <RouterWithLayout
               path="/project/:id"
               layout={PageLayout}
-              component={Project}
+              component={ViewDetail}
               activeTab="project"
             ></RouterWithLayout>
           </Switch>

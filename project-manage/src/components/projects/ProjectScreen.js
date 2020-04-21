@@ -1,25 +1,16 @@
 import React, { useState, useEffect } from "react";
-import moment from "moment";
 import MaterialTable, { MTableEditField } from "material-table";
 import Snackbar from "@material-ui/core/Snackbar";
-import { Alert } from "../common";
-import DateFnsUtils from "@date-io/date-fns";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from "@material-ui/pickers";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
+import { Alert } from "../common";
+import { projectNameValidation } from "../../constants/hepper";
 import {
-  dateValidation,
-  fullNameValidation,
-  phoneNumberValidation,
-} from "../../constants/hepper";
-import {
-  CREATE_MEMBER,
-  GET_ALL_MEMBERS,
-  UPDATE_MEMBER,
-  REMOVE_MEMBER,
+  CREATE_PROJECT,
+  GET_ALL_PROJECTS,
+  UPDATE_PROJECT,
+  REMOVE_PROJECT,
 } from "../../constants/api.js";
 
 const initialState = {
@@ -28,40 +19,34 @@ const initialState = {
   actionFailed: false,
   invalid: false,
 };
-const Member = (props) => {
+const ProjectScreen = (props) => {
   const [data, setData] = useState([]);
   const [state, setState] = useState(initialState);
+  var history = useHistory();
 
   const columns = [
     {
-      field: "full_name",
-      title: "Fullname",
+      field: "project_name",
+      title: "Project Name",
       editComponent: (props) => {
-        if (props.value !== undefined && !fullNameValidation(props.value)) {
+        if (props.value !== undefined && !projectNameValidation(props.value)) {
           return <MTableEditField {...props} error label="invalid" />;
         }
         return <MTableEditField {...props} />;
       },
     },
     {
-      field: "phone_number",
-      title: "Phone Number",
-      editComponent: (props) => {
-        if (props.value !== undefined && !phoneNumberValidation(props.value)) {
-          return <MTableEditField {...props} error label="invalid" />;
-        }
-        return <MTableEditField {...props} />;
-      },
+      field: "description",
+      title: "Description",
     },
     {
-      field: "birthday",
-      title: "Birthday",
+      field: "assignees",
+      title: "Number of Assignees",
       render: (rowData) => {
-        var date = new Date(rowData.birthday);
-        return <span>{date.toLocaleDateString()}</span>;
+        var assignees = rowData.assignees;
+        return <span>{assignees.length}</span>;
       },
-      editComponent: (props) => renderDatePicker(props),
-      initialEditValue: moment(new Date()).local(),
+      editable: "never",
     },
   ];
 
@@ -69,7 +54,7 @@ const Member = (props) => {
     if (state.reload !== false) {
       axios({
         method: "get",
-        url: GET_ALL_MEMBERS,
+        url: GET_ALL_PROJECTS,
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -86,16 +71,9 @@ const Member = (props) => {
   }, [state.reload]);
 
   const handleAddData = (newData) => {
-    const { full_name, birthday, phone_number } = newData;
+    const { project_name } = newData;
     return new Promise((resolve, reject) => {
-      if (
-        !full_name ||
-        !birthday ||
-        !phone_number ||
-        !fullNameValidation(full_name) ||
-        !phoneNumberValidation(phone_number) ||
-        !dateValidation(birthday)
-      ) {
+      if (!project_name || !projectNameValidation(project_name)) {
         setState((prevState) => ({
           ...prevState,
           invalid: true,
@@ -104,7 +82,7 @@ const Member = (props) => {
       }
       axios({
         method: "post",
-        url: CREATE_MEMBER,
+        url: CREATE_PROJECT,
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -134,7 +112,7 @@ const Member = (props) => {
     return new Promise((resolve, reject) => {
       axios({
         method: "delete",
-        url: `${REMOVE_MEMBER}/${rowData._id}`,
+        url: `${REMOVE_PROJECT}/${rowData._id}`,
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -158,16 +136,9 @@ const Member = (props) => {
     });
   };
   const handleUpdate = (newData, oldData) => {
-    const { full_name, birthday, phone_number } = newData;
+    const { project_name } = newData;
     return new Promise((resolve, reject) => {
-      if (
-        !full_name ||
-        !birthday ||
-        !phone_number ||
-        !fullNameValidation(full_name) ||
-        !phoneNumberValidation(phone_number) ||
-        !dateValidation(birthday)
-      ) {
+      if (!project_name || !projectNameValidation(project_name)) {
         setState((prevState) => ({
           ...prevState,
           invalid: true,
@@ -176,7 +147,7 @@ const Member = (props) => {
       }
       axios({
         method: "put",
-        url: `${UPDATE_MEMBER}/${oldData._id}`,
+        url: `${UPDATE_PROJECT}/${oldData._id}`,
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -225,30 +196,8 @@ const Member = (props) => {
     setState((prevState) => ({ ...prevState, invalid: false }));
   };
 
-  const renderDatePicker = (props) => {
-    const { value } = props;
-    var offset = new Date().getTimezoneOffset();
-    var date = value ? new Date(value) : new Date();
-    date = new Date(date - offset * 60000);
-    return (
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <KeyboardDatePicker
-          disableToolbar
-          variant="inline"
-          format="MM/dd/yyyy"
-          margin="normal"
-          id="date-picker-inline"
-          label="Date picker inline"
-          value={date}
-          onChange={(date) => {
-            props.onChange(date);
-          }}
-          KeyboardButtonProps={{
-            "aria-label": "change date",
-          }}
-        />
-      </MuiPickersUtilsProvider>
-    );
+  const handleView = (event, rowData) => {
+    history.push(`/project/${rowData._id}`);
   };
 
   return (
@@ -281,7 +230,7 @@ const Member = (props) => {
         </Alert>
       </Snackbar>
       <MaterialTable
-        title="Members"
+        title="Projects"
         columns={columns}
         data={data}
         options={{
@@ -292,8 +241,15 @@ const Member = (props) => {
           onRowUpdate: (newData, oldData) => handleUpdate(newData, oldData),
           onRowDelete: (rowData) => handleDelete(rowData),
         }}
+        actions={[
+          (dataRow) => ({
+            icon: "visibility",
+            tooltip: `View project ${dataRow.project_name}`,
+            onClick: (event, rowData) => handleView(event, rowData),
+          }),
+        ]}
       />
     </>
   );
 };
-export { Member };
+export default ProjectScreen;
