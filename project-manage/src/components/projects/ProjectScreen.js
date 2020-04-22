@@ -43,8 +43,11 @@ const ProjectScreen = (props) => {
       field: "assignees",
       title: "Number of Assignees",
       render: (rowData) => {
-        var assignees = rowData.assignees;
-        return <span>{assignees.length}</span>;
+        if (rowData && rowData.assignees) {
+          var assignees = rowData.assignees;
+          return <span>{assignees.length}</span>;
+        }
+        return null;
       },
       editable: "never",
     },
