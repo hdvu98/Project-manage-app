@@ -1,2 +1,4 @@
 import layoutStyle from "./pageLayout.style";
-export { layoutStyle };
+import viewDetailStyle from "./viewDetail.style";
+import notFoundStyle from "./errorPage.style";
+export { layoutStyle, viewDetailStyle, notFoundStyle };
