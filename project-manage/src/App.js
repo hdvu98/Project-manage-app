@@ -4,6 +4,7 @@ import { BrowserRouter, Switch } from "react-router-dom";
 import { RouterWithLayout, PageLayout } from "./components/common/";
 import { Member } from "./components/members/";
 import { ViewDetail, ProjectScreen } from "./components/projects/";
+import { NotFound } from "./components/error/";
 import { theme } from "./theme/";
 
 function App() {
@@ -38,6 +39,10 @@ function App() {
               layout={PageLayout}
               component={ViewDetail}
               activeTab="project"
+            ></RouterWithLayout>
+            <RouterWithLayout
+              layout={PageLayout}
+              component={NotFound}
             ></RouterWithLayout>
           </Switch>
         </BrowserRouter>
